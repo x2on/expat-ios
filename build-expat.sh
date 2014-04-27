@@ -66,20 +66,24 @@ do
 	export DEVROOT="${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer"
 	export SDKROOT="${DEVROOT}/SDKs/${PLATFORM}${SDKVERSION}.sdk"
 
-    export LD=${DEVROOT}/usr/bin/ld
+    export LD=${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
 	export CC=${DEVELOPER}/usr/bin/gcc
     export CXX=${DEVELOPER}/usr/bin/g++
 
-	unset AR
-	unset AS
+    export AR=${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar
+    export AS=${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/as
+    export NM=${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/nm
+    export RANLIB=${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib
 
-    if [[ "${ARCH}" == "i386" || "${ARCH}" == "x86_64" ]];
+    export LDFLAGS="-arch ${ARCH} -pipe -no-cpp-precomp -isysroot ${SDKROOT} -L${CURRENTPATH}/lib -miphoneos-version-min=${MIN_VERSION} -fheinous-gnu-extensions"
+    export CFLAGS="-arch ${ARCH} -pipe -no-cpp-precomp -isysroot ${SDKROOT} -I${CURRENTPATH}/include -miphoneos-version-min=${MIN_VERSION} -fheinous-gnu-extensions"
+    export CPPFLAGS="-arch ${ARCH} -pipe -no-cpp-precomp -isysroot ${SDKROOT} -I${CURRENTPATH}/include -miphoneos-version-min=${MIN_VERSION} -fheinous-gnu-extensions"
+    export CXXFLAGS="-arch ${ARCH} -pipe -no-cpp-precomp -isysroot ${SDKROOT} -I${CURRENTPATH}/include -miphoneos-version-min=${MIN_VERSION} -fheinous-gnu-extensions"
+
+    HOST="${ARCH}"
+    if [ "${ARCH}" == "arm64" ];
     then
-        export NM=${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/nm
-        export RANLIB=${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib
-    else
-        export NM=${DEVROOT}/usr/bin/nm
-        export RANLIB=${DEVROOT}/usr/bin/ranlib
+        HOST="aarch64"
     fi
 
     export LDFLAGS="-arch ${ARCH} -pipe -no-cpp-precomp -isysroot ${SDKROOT} -L${CURRENTPATH}/lib -miphoneos-version-min=${MIN_VERSION}"
@@ -90,7 +94,7 @@ do
 	LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk/build-expat-${VERSION}.log"
 
     echo "Configure..."
-	./configure --prefix="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk" --host="${ARCH}-apple-darwin" --enable-static > "${LOG}" 2>&1
+	./configure --host="${HOST}-apple-darwin" --prefix="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk" --disable-shared --enable-static > "${LOG}" 2>&1
     echo "Make..."
     make >> "${LOG}" 2>&1
     echo "Make install..."
@@ -100,7 +104,7 @@ do
 done
 
 echo "Build library..."
-lipo -create ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSION}-i386.sdk/lib/libexpat.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv6.sdk/lib/libexpat.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7.sdk/lib/libexpat.a -output ${CURRENTPATH}/lib/libexpat.a
+lipo -create ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSION}-i386.sdk/lib/libexpat.a ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSION}-x86_64.sdk/lib/libexpat.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7.sdk/lib/libexpat.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7s.sdk/lib/libexpat.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-arm64.sdk/lib/libexpat.a -output ${CURRENTPATH}/lib/libexpat.a
 mkdir -p ${CURRENTPATH}/include/expat
 cp  ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSION}-i386.sdk/include/expat* ${CURRENTPATH}/include/expat
 echo "Building done."
