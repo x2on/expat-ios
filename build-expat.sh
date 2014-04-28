@@ -84,6 +84,12 @@ do
     if [ "${ARCH}" == "arm64" ];
     then
         HOST="aarch64"
+
+        #Patch config.sub to support aarch64
+        cp -f ${CURRENTPATH}/config.sub ${CURRENTPATH}/src/expat-${VERSION}/conftools/
+
+        #Patch readfilemap.c support aarch64
+        perl -i -pe 's|#include <stdio.h>|#include <stdio.h>$/#include <unistd.h>|g' ${CURRENTPATH}/src/expat-${VERSION}/xmlwf/readfilemap.c
     fi
 
 	mkdir -p "${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
@@ -101,6 +107,7 @@ done
 
 echo "Build library..."
 lipo -create ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSION}-i386.sdk/lib/libexpat.a ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSION}-x86_64.sdk/lib/libexpat.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7.sdk/lib/libexpat.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7s.sdk/lib/libexpat.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-arm64.sdk/lib/libexpat.a -output ${CURRENTPATH}/lib/libexpat.a
+lipo -info ${CURRENTPATH}/lib/libexpat.a
 mkdir -p ${CURRENTPATH}/include/expat
 cp  ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSION}-i386.sdk/include/expat* ${CURRENTPATH}/include/expat
 echo "Building done."
