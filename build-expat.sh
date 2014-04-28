@@ -67,7 +67,7 @@ do
 	export SDKROOT="${DEVROOT}/SDKs/${PLATFORM}${SDKVERSION}.sdk"
 
     export LD=${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
-	export CC=${DEVELOPER}/usr/bin/gcc
+    export CC=${DEVELOPER}/usr/bin/gcc
     export CXX=${DEVELOPER}/usr/bin/g++
 
     export AR=${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar
@@ -86,17 +86,13 @@ do
         HOST="aarch64"
     fi
 
-    export LDFLAGS="-arch ${ARCH} -pipe -no-cpp-precomp -isysroot ${SDKROOT} -L${CURRENTPATH}/lib -miphoneos-version-min=${MIN_VERSION}"
-	export CFLAGS="-arch ${ARCH} -pipe -no-cpp-precomp -isysroot ${SDKROOT} -I${CURRENTPATH}/include -miphoneos-version-min=${MIN_VERSION}"
-    export CPPFLAGS="-arch ${ARCH} -pipe -no-cpp-precomp -isysroot ${SDKROOT} -I${CURRENTPATH}/include -miphoneos-version-min=${MIN_VERSION}"
-
 	mkdir -p "${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
 	LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk/build-expat-${VERSION}.log"
 
     echo "Configure..."
 	./configure --host="${HOST}-apple-darwin" --prefix="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk" --disable-shared --enable-static > "${LOG}" 2>&1
     echo "Make..."
-    make >> "${LOG}" 2>&1
+    make -j4 >> "${LOG}" 2>&1
     echo "Make install..."
     make install >> "${LOG}" 2>&1
 	cd "${CURRENTPATH}"
