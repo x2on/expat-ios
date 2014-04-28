@@ -84,12 +84,15 @@ do
     if [ "${ARCH}" == "arm64" ];
     then
         HOST="aarch64"
-
+        
+        echo "Patch..."
         #Patch config.sub to support aarch64
-        cp -f ${CURRENTPATH}/config.sub ${CURRENTPATH}/src/expat-${VERSION}/conftools/
+        PATCHFILE=`find ../.. | grep "config.sub.diff"`
+        echo "Using: ${PATCHFILE}"
+        patch -R -p0 < ${PATCHFILE} >> "${LOG}" 2>&1
 
-        #Patch readfilemap.c support aarch64
-        perl -i -pe 's|#include <stdio.h>|#include <stdio.h>$/#include <unistd.h>|g' ${CURRENTPATH}/src/expat-${VERSION}/xmlwf/readfilemap.c
+        #Patch readfilemap.c to support aarch64
+        perl -i -pe 's|#include <stdio.h>|#include <stdio.h>$/#include <unistd.h>|g' "${CURRENTPATH}/src/expat-${VERSION}/xmlwf/readfilemap.c"
     fi
 
 	mkdir -p "${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
