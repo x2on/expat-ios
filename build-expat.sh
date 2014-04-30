@@ -87,9 +87,7 @@ do
         
         echo "Patch..."
         #Patch config.sub to support aarch64
-        PATCHFILE=`find ../.. | grep "config.sub.diff"`
-        echo "Using: ${PATCHFILE}"
-        patch -R -p0 < ${PATCHFILE} >> "${LOG}" 2>&1
+        patch -R -p0 < "../../config.sub.diff" >> "${LOG}" 2>&1
 
         #Patch readfilemap.c to support aarch64
         perl -i -pe 's|#include <stdio.h>|#include <stdio.h>$/#include <unistd.h>|g' "${CURRENTPATH}/src/expat-${VERSION}/xmlwf/readfilemap.c"
